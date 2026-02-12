@@ -4,7 +4,7 @@
       <el-icon :size="64" color="#C0C4CC"><User /></el-icon>
       <p class="title">您还未登录</p>
       <p class="desc">登录后享受更多服务</p>
-      <el-button type="primary" round @click="goLogin">立即登录</el-button>
+      <el-button type="primary" @click="goLogin">立即登录</el-button>
     </div>
   </div>
 </template>

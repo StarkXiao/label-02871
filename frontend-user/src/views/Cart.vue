@@ -9,7 +9,7 @@
     <div v-else-if="cartStore.items.length === 0" class="empty-cart">
       <el-icon :size="64"><ShoppingCart /></el-icon>
       <p>购物车空空如也</p>
-      <el-button type="primary" round @click="goHome">去逛逛</el-button>
+      <el-button type="primary" @click="goHome">去逛逛</el-button>
     </div>
     
     <!-- 购物车列表 -->
@@ -68,7 +68,6 @@
           </div>
           <el-button 
             type="primary" 
-            round 
             :disabled="cartStore.selectedItems.length === 0"
             @click="handleCheckout"
           >

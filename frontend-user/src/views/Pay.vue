@@ -57,7 +57,7 @@
     
     <!-- 底部支付按钮 -->
     <div class="pay-bar">
-      <el-button type="primary" size="large" round :loading="paying" @click="handlePay">
+      <el-button type="primary" size="large"  :loading="paying" @click="handlePay">
         立即支付 ¥{{ amount }}
       </el-button>
     </div>

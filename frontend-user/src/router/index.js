@@ -73,6 +73,12 @@ const routes = [
     name: 'Pay',
     component: () => import('@/views/Pay.vue'),
     meta: { title: '订单支付', requireAuth: true }
+  },
+  {
+    path: '/products',
+    name: 'ProductList',
+    component: () => import('@/views/ProductList.vue'),
+    meta: { title: '商品列表' }
   }
 ]
 

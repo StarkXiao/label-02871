@@ -66,8 +66,8 @@
           </div>
         </div>
         <div class="action-buttons">
-          <el-button round @click="addToCart">加入购物车</el-button>
-          <el-button type="primary" round @click="buyNow">立即购买</el-button>
+          <el-button @click="addToCart">加入购物车</el-button>
+          <el-button type="primary" @click="buyNow">立即购买</el-button>
         </div>
       </div>
     </template>

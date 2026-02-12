@@ -54,7 +54,7 @@
       
       <!-- 退出登录 -->
       <div class="logout-section">
-        <el-button plain round @click="handleLogout">退出登录</el-button>
+        <el-button @click="handleLogout">退出登录</el-button>
       </div>
     </template>
   </div>
@@ -244,7 +244,7 @@ const handleLogout = async () => {
   text-align: center;
   
   .el-button {
-    width: 60%;
+    width: 100%;
   }
 }
 </style>

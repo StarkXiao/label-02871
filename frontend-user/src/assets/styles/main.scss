@@ -72,6 +72,14 @@ img {
   --el-button-active-border-color: #{$primary-dark};
 }
 
+// 清除所有按钮的focus轮廓
+.el-button {
+  &:focus, &:active, &:focus-visible {
+    box-shadow: none !important;
+    outline: none !important;
+  }
+}
+
 .el-input__wrapper {
   border-radius: $radius-md;
 }

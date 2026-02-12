@@ -34,7 +34,7 @@
     <div class="section">
       <div class="section-header">
         <h2 class="section-title">热门推荐</h2>
-        <span class="section-more" @click="goCategory()">查看更多</span>
+        <span class="section-more" @click="goProductList('hot')">查看更多</span>
       </div>
       <div class="product-grid">
         <ProductCard 
@@ -49,6 +49,7 @@
     <div class="section">
       <div class="section-header">
         <h2 class="section-title">新品上市</h2>
+        <span class="section-more" @click="goProductList('new')">查看更多</span>
       </div>
       <div class="product-grid">
         <ProductCard 
@@ -91,6 +92,7 @@ onMounted(async () => {
 
 const goSearch = () => router.push('/search')
 const goCategory = (id) => router.push(id ? `/category?id=${id}` : '/category')
+const goProductList = (type) => router.push(`/products?type=${type}`)
 const handleBannerClick = (banner) => router.push(banner.link)
 </script>
 

@@ -17,7 +17,7 @@ import TabBar from '@/components/TabBar.vue'
 const route = useRoute()
 
 const showTabBar = computed(() => {
-  const hiddenRoutes = ['/login', '/register', '/product', '/checkout', '/pay']
+  const hiddenRoutes = ['/login', '/register', '/product', '/checkout', '/pay', '/search', '/products', '/address', '/order']
   return !hiddenRoutes.some(path => route.path.startsWith(path))
 })
 </script>

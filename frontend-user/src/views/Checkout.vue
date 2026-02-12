@@ -68,7 +68,7 @@
         <span>实付款：</span>
         <span class="total-price price">{{ totalPrice.toFixed(2) }}</span>
       </div>
-      <el-button type="primary" round :loading="submitting" @click="submitOrder">
+      <el-button type="primary" :loading="submitting" @click="submitOrder">
         提交订单
       </el-button>
     </div>

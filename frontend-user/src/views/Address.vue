@@ -34,8 +34,7 @@
     
     <!-- 添加按钮 -->
     <div class="add-btn-wrapper">
-      <el-button type="primary" round @click="showAddDialog">
-        <el-icon><Plus /></el-icon>
+      <el-button type="primary" @click="showAddDialog">
         新增收货地址
       </el-button>
     </div>

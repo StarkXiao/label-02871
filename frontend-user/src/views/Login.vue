@@ -39,18 +39,14 @@
             show-password
           />
         </el-form-item>
-        
-        <el-form-item>
           <el-button 
             type="primary" 
             size="large" 
-            round 
             :loading="loading"
             @click="handleLogin"
           >
             登录
           </el-button>
-        </el-form-item>
       </el-form>
       
       <!-- 其他操作 -->
@@ -161,6 +157,16 @@ const goRegister = () => router.push('/register')
 .login-form {
   .el-form-item {
     margin-bottom: $spacing-lg;
+    
+    &.is-error {
+      margin-bottom: $spacing-lg;
+    }
+  }
+  
+  :deep(.el-form-item__error) {
+    position: absolute;
+    top: 100%;
+    padding-top: 2px;
   }
   
   .el-button {

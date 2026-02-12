@@ -63,7 +63,6 @@
           <el-button 
             type="primary" 
             size="large" 
-            round 
             :loading="loading"
             @click="handleRegister"
           >
@@ -188,6 +187,16 @@ const goLogin = () => router.push('/login')
 .register-form {
   .el-form-item {
     margin-bottom: $spacing-lg;
+    
+    &.is-error {
+      margin-bottom: $spacing-lg;
+    }
+  }
+  
+  :deep(.el-form-item__error) {
+    position: absolute;
+    top: 100%;
+    padding-top: 2px;
   }
   
   .el-button {
