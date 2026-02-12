@@ -26,6 +26,7 @@
             placeholder="请输入邮箱"
             :prefix-icon="Message"
             size="large"
+            @input="clearValidate('email')"
           />
         </el-form-item>
         
@@ -37,6 +38,7 @@
             :prefix-icon="Lock"
             size="large"
             show-password
+            @input="clearValidate('password')"
           />
         </el-form-item>
           <el-button 
@@ -112,6 +114,10 @@ const handleLogin = async () => {
 }
 
 const goRegister = () => router.push('/register')
+
+const clearValidate = (field) => {
+  formRef.value?.clearValidate(field)
+}
 </script>
 
 <style lang="scss" scoped>

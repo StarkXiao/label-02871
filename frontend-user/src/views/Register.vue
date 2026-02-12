@@ -25,6 +25,7 @@
             placeholder="请输入昵称"
             :prefix-icon="User"
             size="large"
+            @input="clearValidate('nickname')"
           />
         </el-form-item>
         
@@ -34,6 +35,7 @@
             placeholder="请输入邮箱"
             :prefix-icon="Message"
             size="large"
+            @input="clearValidate('email')"
           />
         </el-form-item>
         
@@ -45,6 +47,7 @@
             :prefix-icon="Lock"
             size="large"
             show-password
+            @input="clearValidate('password')"
           />
         </el-form-item>
         
@@ -56,6 +59,7 @@
             :prefix-icon="Lock"
             size="large"
             show-password
+            @input="clearValidate('confirmPassword')"
           />
         </el-form-item>
         
@@ -148,6 +152,10 @@ const handleRegister = async () => {
 }
 
 const goLogin = () => router.push('/login')
+
+const clearValidate = (field) => {
+  formRef.value?.clearValidate(field)
+}
 </script>
 
 <style lang="scss" scoped>

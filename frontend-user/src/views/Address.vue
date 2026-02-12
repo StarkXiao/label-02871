@@ -47,13 +47,13 @@
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
         <el-form-item label="收货人" prop="name">
-          <el-input v-model="form.name" placeholder="请输入收货人姓名" />
+          <el-input v-model="form.name" placeholder="请输入收货人姓名" @input="clearValidate('name')" />
         </el-form-item>
         <el-form-item label="手机号" prop="phone">
-          <el-input v-model="form.phone" placeholder="请输入手机号" />
+          <el-input v-model="form.phone" placeholder="请输入手机号" @input="clearValidate('phone')" />
         </el-form-item>
         <el-form-item label="详细地址" prop="detail">
-          <el-input v-model="form.detail" type="textarea" :rows="2" placeholder="请输入详细地址" />
+          <el-input v-model="form.detail" type="textarea" :rows="2" placeholder="请输入详细地址" @input="clearValidate('detail')" />
         </el-form-item>
         <el-form-item>
           <el-checkbox v-model="form.isDefault">设为默认地址</el-checkbox>
@@ -118,6 +118,7 @@ const showAddDialog = () => {
   isEdit.value = false
   editId.value = null
   resetForm()
+  formRef.value?.clearValidate()
   dialogVisible.value = true
 }
 
@@ -130,6 +131,7 @@ const editAddress = (addr) => {
     detail: addr.detail,
     isDefault: addr.isDefault
   })
+  formRef.value?.clearValidate()
   dialogVisible.value = true
 }
 
@@ -172,6 +174,10 @@ const submitForm = async () => {
   
   submitting.value = false
   dialogVisible.value = false
+}
+
+const clearValidate = (field) => {
+  formRef.value?.clearValidate(field)
 }
 </script>
 
