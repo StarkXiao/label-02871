@@ -59,7 +59,7 @@
       <div class="action-bar">
         <div class="action-icons">
           <div class="action-icon" @click="goCart">
-            <el-badge :value="cartStore.totalCount" :hidden="cartStore.totalCount === 0">
+            <el-badge :value="totalCount" :hidden="totalCount === 0">
               <el-icon :size="20"><ShoppingCart /></el-icon>
             </el-badge>
             <span>购物车</span>
@@ -85,14 +85,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Loading, HomeFilled, ShoppingCart, WarningFilled } from '@element-plus/icons-vue'
 import { productApi } from '@/api'
-import { useCartStore } from '@/store/cart'
-import { useUserStore } from '@/store/user'
+import { useCartStore, useUserStore } from '@/store/helpers'
 import NavBar from '@/components/NavBar.vue'
 
 const route = useRoute()
 const router = useRouter()
-const cartStore = useCartStore()
-const userStore = useUserStore()
+const { totalCount, addItem } = useCartStore()
+const { isLoggedIn } = useUserStore()
 
 const product = ref(null)
 const loading = ref(true)
@@ -133,17 +132,17 @@ const checkSpecs = () => {
 }
 
 const addToCart = () => {
-  if (!userStore.isLoggedIn) {
+  if (!isLoggedIn.value) {
     router.push('/login')
     return
   }
   if (!checkSpecs()) return
-  cartStore.addItem(product.value, 1, { ...selectedSpecs.value })
+  addItem(product.value, 1, { ...selectedSpecs.value })
   ElMessage.success('已加入购物车')
 }
 
 const buyNow = () => {
-  if (!userStore.isLoggedIn) {
+  if (!isLoggedIn.value) {
     router.push('/login')
     return
   }

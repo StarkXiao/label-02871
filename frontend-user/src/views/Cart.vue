@@ -1,12 +1,12 @@
 <template>
   <div class="cart-page">
-    <NavBar v-if="userStore.isLoggedIn" title="购物车" :show-back="false" />
+    <NavBar v-if="isLoggedIn" title="购物车" :show-back="false" />
     
     <!-- 未登录 -->
-    <NotLoggedIn v-if="!userStore.isLoggedIn" />
+    <NotLoggedIn v-if="!isLoggedIn" />
     
     <!-- 空购物车 -->
-    <div v-else-if="cartStore.items.length === 0" class="empty-cart">
+    <div v-else-if="!items || items.length === 0" class="empty-cart">
       <el-icon :size="64"><ShoppingCart /></el-icon>
       <p>购物车空空如也</p>
       <el-button type="primary" @click="goHome">去逛逛</el-button>
@@ -15,15 +15,15 @@
     <!-- 购物车列表 -->
     <div v-else class="cart-content">
       <div class="cart-list">
-        <div v-for="item in cartStore.items" :key="item.id" class="cart-item">
+        <div v-for="item in items" :key="item.id" class="cart-item">
           <el-checkbox 
             :model-value="item.selected" 
-            @change="cartStore.toggleSelect(item.id)"
+            @change="toggleSelect(item.id)"
           />
           <img :src="item.image" :alt="item.name" class="item-img" @click="goDetail(item.productId)" />
           <div class="item-info">
             <h3 class="item-name ellipsis-2" @click="goDetail(item.productId)">{{ item.name }}</h3>
-            <div v-if="Object.keys(item.specs).length" class="item-specs">
+            <div v-if="item.specs && Object.keys(item.specs).length" class="item-specs">
               {{ formatSpecs(item.specs) }}
             </div>
             <div class="item-bottom">
@@ -34,7 +34,7 @@
                   :icon="Minus" 
                   circle 
                   :disabled="item.quantity <= 1"
-                  @click="cartStore.updateQuantity(item.id, item.quantity - 1)"
+                  @click="updateQuantity(item.id, item.quantity - 1)"
                 />
                 <span class="quantity">{{ item.quantity }}</span>
                 <el-button 
@@ -42,7 +42,7 @@
                   :icon="Plus" 
                   circle 
                   :disabled="item.quantity >= item.stock"
-                  @click="cartStore.updateQuantity(item.id, item.quantity + 1)"
+                  @click="updateQuantity(item.id, item.quantity + 1)"
                 />
               </div>
             </div>
@@ -55,8 +55,8 @@
       <div class="cart-footer">
         <div class="footer-left">
           <el-checkbox 
-            :model-value="cartStore.isAllSelected" 
-            @change="cartStore.toggleSelectAll"
+            :model-value="isAllSelected" 
+            @change="toggleSelectAll"
           >
             全选
           </el-checkbox>
@@ -64,14 +64,14 @@
         <div class="footer-right">
           <div class="total-info">
             <span>合计：</span>
-            <span class="total-price price">{{ cartStore.totalPrice.toFixed(2) }}</span>
+            <span class="total-price price">{{ (totalPrice || 0).toFixed(2) }}</span>
           </div>
           <el-button 
             type="primary" 
-            :disabled="cartStore.selectedItems.length === 0"
+            :disabled="!selectedItems || selectedItems.length === 0"
             @click="handleCheckout"
           >
-            结算({{ cartStore.selectedItems.length }})
+            结算({{ selectedItems ? selectedItems.length : 0 }})
           </el-button>
         </div>
       </div>
@@ -83,14 +83,13 @@
 import { useRouter } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { ShoppingCart, Minus, Plus, Delete } from '@element-plus/icons-vue'
-import { useCartStore } from '@/store/cart'
-import { useUserStore } from '@/store/user'
+import { useCartStore, useUserStore } from '@/store/helpers'
 import NavBar from '@/components/NavBar.vue'
 import NotLoggedIn from '@/components/NotLoggedIn.vue'
 
 const router = useRouter()
-const cartStore = useCartStore()
-const userStore = useUserStore()
+const { items, totalPrice, selectedItems, isAllSelected, toggleSelect, updateQuantity, removeItem, toggleSelectAll, clearSelected } = useCartStore()
+const { isLoggedIn } = useUserStore()
 
 const formatSpecs = (specs) => {
   return Object.entries(specs).map(([k, v]) => `${k}: ${v}`).join(', ')
@@ -106,7 +105,7 @@ const handleDelete = async (id) => {
       cancelButtonText: '取消',
       type: 'warning'
     })
-    cartStore.removeItem(id)
+    removeItem(id)
     ElMessage.success('删除成功')
   } catch {
     // 取消删除
@@ -115,8 +114,7 @@ const handleDelete = async (id) => {
 
 const handleCheckout = () => {
   // 跳转到确认订单页，传递购物车选中商品信息
-  const selectedItems = cartStore.selectedItems
-  if (selectedItems.length === 0) return
+  if (!selectedItems.value || selectedItems.value.length === 0) return
   
   router.push({
     path: '/checkout',

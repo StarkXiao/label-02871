@@ -86,11 +86,9 @@ export default {
       commit('CLEAR_USER')
       localStorage.removeItem('user')
       localStorage.removeItem('token')
-      // 清空购物车
+      // 清空购物车、地址、订单
       dispatch('cart/clearAll', null, { root: true })
-      // 清空地址
       dispatch('address/clearAddresses', null, { root: true })
-      // 清空订单
       dispatch('order/clearOrders', null, { root: true })
     }
   }

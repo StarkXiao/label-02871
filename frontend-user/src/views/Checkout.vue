@@ -81,16 +81,14 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Location, ArrowRight } from '@element-plus/icons-vue'
 import { productApi } from '@/api'
-import { useAddressStore } from '@/store/address'
-import { useCartStore } from '@/store/cart'
-import { useOrderStore } from '@/store/order'
+import { useAddressStore, useCartStore, useOrderStore } from '@/store/helpers'
 import NavBar from '@/components/NavBar.vue'
 
 const route = useRoute()
 const router = useRouter()
-const addressStore = useAddressStore()
-const cartStore = useCartStore()
-const orderStore = useOrderStore()
+const { addressList, defaultAddress } = useAddressStore()
+const { selectedItems, clearSelected } = useCartStore()
+const { addOrder } = useOrderStore()
 
 const orderItems = ref([])
 const remark = ref('')
@@ -101,9 +99,9 @@ const fromCart = ref(false)
 // 当前选中的地址
 const selectedAddress = computed(() => {
   if (selectedAddressId.value) {
-    return addressStore.addressList.find(a => a.id === selectedAddressId.value) || null
+    return addressList.value?.find(a => a.id === selectedAddressId.value) || null
   }
-  return addressStore.defaultAddress || addressStore.addressList[0] || null
+  return defaultAddress.value || addressList.value?.[0] || null
 })
 
 const formatItemSpecs = (specs) => {
@@ -147,7 +145,7 @@ onMounted(async () => {
   
   if (fromCart.value) {
     // 从购物车来，使用购物车选中的商品
-    orderItems.value = cartStore.selectedItems.map(item => ({
+    orderItems.value = (selectedItems.value || []).map(item => ({
       id: item.id,
       productId: item.productId,
       name: item.name,
@@ -207,7 +205,7 @@ const submitOrder = async () => {
   
   // 如果从购物车来，清除已选商品
   if (fromCart.value) {
-    cartStore.clearSelected()
+    clearSelected()
   }
   
   const orderNo = Date.now().toString()
@@ -229,7 +227,7 @@ const submitOrder = async () => {
       quantity: item.quantity
     }))
   }
-  orderStore.addOrder(newOrder)
+  addOrder(newOrder)
   
   // 保存商品列表到 sessionStorage
   sessionStorage.setItem('pay_items', JSON.stringify(orderItems.value))

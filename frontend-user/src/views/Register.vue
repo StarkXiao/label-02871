@@ -88,11 +88,11 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { ShoppingCart, User, Message, Lock } from '@element-plus/icons-vue'
-import { useUserStore } from '@/store/user'
+import { useUserStore } from '@/store/helpers'
 import NavBar from '@/components/NavBar.vue'
 
 const router = useRouter()
-const userStore = useUserStore()
+const { register } = useUserStore()
 
 const formRef = ref()
 const loading = ref(false)
@@ -136,7 +136,7 @@ const handleRegister = async () => {
   if (!valid) return
   
   loading.value = true
-  const res = await userStore.register({
+  const res = await register({
     nickname: form.nickname,
     email: form.email,
     password: form.password

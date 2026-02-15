@@ -21,18 +21,17 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useCartStore } from '@/store/cart'
-import { useUserStore } from '@/store/user'
+import { useCartStore, useUserStore } from '@/store/helpers'
 import { HomeFilled, Grid, ShoppingCart, User } from '@element-plus/icons-vue'
 
 const route = useRoute()
-const cartStore = useCartStore()
-const userStore = useUserStore()
+const { totalCount } = useCartStore()
+const { isLoggedIn } = useUserStore()
 
 const tabs = computed(() => [
   { path: '/', label: '首页', icon: HomeFilled },
   { path: '/category', label: '分类', icon: Grid },
-  { path: '/cart', label: '购物车', icon: ShoppingCart, badge: userStore.isLoggedIn ? cartStore.totalCount : 0 },
+  { path: '/cart', label: '购物车', icon: ShoppingCart, badge: isLoggedIn.value ? totalCount.value : 0 },
   { path: '/profile', label: '我的', icon: User }
 ])
 

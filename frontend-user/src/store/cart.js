@@ -1,6 +1,6 @@
-import { defineStore } from 'pinia'
-
-export const useCartStore = defineStore('cart', {
+export default {
+  namespaced: true,
+  
   state: () => ({
     items: JSON.parse(localStorage.getItem('cart') || '[]')
   }),
@@ -21,17 +21,49 @@ export const useCartStore = defineStore('cart', {
     }
   },
   
+  mutations: {
+    SET_ITEMS(state, items) {
+      state.items = items
+    },
+    ADD_ITEM(state, item) {
+      state.items.push(item)
+    },
+    UPDATE_ITEM_QUANTITY(state, { index, quantity }) {
+      state.items[index].quantity = quantity
+    },
+    INCREMENT_QUANTITY(state, { index, quantity }) {
+      state.items[index].quantity += quantity
+    },
+    REMOVE_ITEM(state, index) {
+      state.items.splice(index, 1)
+    },
+    TOGGLE_SELECT(state, index) {
+      state.items[index].selected = !state.items[index].selected
+    },
+    SET_ALL_SELECTED(state, selected) {
+      state.items.forEach(item => {
+        item.selected = selected
+      })
+    },
+    CLEAR_SELECTED(state) {
+      state.items = state.items.filter(item => !item.selected)
+    },
+    CLEAR_ALL(state) {
+      state.items = []
+    }
+  },
+  
   actions: {
-    addItem(product, quantity = 1, specs = {}) {
+    addItem({ state, commit, dispatch }, { product, quantity = 1, specs = {} }) {
       const specKey = JSON.stringify(specs)
-      const existIndex = this.items.findIndex(
+      const existIndex = state.items.findIndex(
         item => item.productId === product.id && JSON.stringify(item.specs) === specKey
       )
       
       if (existIndex > -1) {
-        this.items[existIndex].quantity += quantity
+        commit('INCREMENT_QUANTITY', { index: existIndex, quantity })
       } else {
-        this.items.push({
+        commit('ADD_ITEM', {
           id: Date.now(),
           productId: product.id,
           name: product.name,
@@ -43,53 +75,53 @@ export const useCartStore = defineStore('cart', {
           stock: product.stock
         })
       }
-      this.saveToStorage()
+      dispatch('saveToStorage')
     },
     
-    removeItem(id) {
-      const index = this.items.findIndex(item => item.id === id)
+    removeItem({ state, commit, dispatch }, id) {
+      const index = state.items.findIndex(item => item.id === id)
       if (index > -1) {
-        this.items.splice(index, 1)
-        this.saveToStorage()
+        commit('REMOVE_ITEM', index)
+        dispatch('saveToStorage')
       }
     },
     
-    updateQuantity(id, quantity) {
-      const item = this.items.find(item => item.id === id)
-      if (item) {
-        item.quantity = Math.max(1, Math.min(quantity, item.stock))
-        this.saveToStorage()
+    updateQuantity({ state, commit, dispatch }, { id, quantity }) {
+      const index = state.items.findIndex(item => item.id === id)
+      if (index > -1) {
+        const item = state.items[index]
+        const newQuantity = Math.max(1, Math.min(quantity, item.stock))
+        commit('UPDATE_ITEM_QUANTITY', { index, quantity: newQuantity })
+        dispatch('saveToStorage')
       }
     },
     
-    toggleSelect(id) {
-      const item = this.items.find(item => item.id === id)
-      if (item) {
-        item.selected = !item.selected
-        this.saveToStorage()
+    toggleSelect({ state, commit, dispatch }, id) {
+      const index = state.items.findIndex(item => item.id === id)
+      if (index > -1) {
+        commit('TOGGLE_SELECT', index)
+        dispatch('saveToStorage')
       }
     },
     
-    toggleSelectAll() {
-      const newState = !this.isAllSelected
-      this.items.forEach(item => {
-        item.selected = newState
-      })
-      this.saveToStorage()
+    toggleSelectAll({ getters, commit, dispatch }) {
+      const newState = !getters.isAllSelected
+      commit('SET_ALL_SELECTED', newState)
+      dispatch('saveToStorage')
     },
     
-    clearSelected() {
-      this.items = this.items.filter(item => !item.selected)
-      this.saveToStorage()
+    clearSelected({ commit, dispatch }) {
+      commit('CLEAR_SELECTED')
+      dispatch('saveToStorage')
     },
     
-    clearAll() {
-      this.items = []
-      this.saveToStorage()
+    clearAll({ commit, dispatch }) {
+      commit('CLEAR_ALL')
+      dispatch('saveToStorage')
     },
     
-    saveToStorage() {
-      localStorage.setItem('cart', JSON.stringify(this.items))
+    saveToStorage({ state }) {
+      localStorage.setItem('cart', JSON.stringify(state.items))
     }
   }
-})
+}

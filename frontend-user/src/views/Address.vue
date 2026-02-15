@@ -3,14 +3,14 @@
     <NavBar title="收货地址" />
     
     <div class="address-content">
-      <div v-if="addressStore.addressList.length === 0" class="empty-state">
+      <div v-if="!addressList || addressList.length === 0" class="empty-state">
         <el-icon :size="48"><Location /></el-icon>
         <span>暂无收货地址</span>
       </div>
       
       <div v-else class="address-list">
         <div 
-          v-for="addr in addressStore.addressList" 
+          v-for="addr in addressList" 
           :key="addr.id" 
           class="address-item"
           :class="{ selected: isSelectMode && selectedId === addr.id }"
@@ -72,12 +72,12 @@ import { ref, reactive, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Location, Edit, Delete, Plus } from '@element-plus/icons-vue'
-import { useAddressStore } from '@/store/address'
+import { useAddressStore } from '@/store/helpers'
 import NavBar from '@/components/NavBar.vue'
 
 const route = useRoute()
 const router = useRouter()
-const addressStore = useAddressStore()
+const { addressList, addAddress, updateAddress, removeAddress } = useAddressStore()
 
 const dialogVisible = ref(false)
 const isEdit = ref(false)
@@ -142,7 +142,7 @@ const deleteAddress = async (id) => {
       cancelButtonText: '取消',
       type: 'warning'
     })
-    addressStore.removeAddress(id)
+    removeAddress(id)
     ElMessage.success('删除成功')
   } catch {
     // 取消
@@ -165,10 +165,10 @@ const submitForm = async () => {
   await new Promise(resolve => setTimeout(resolve, 300))
   
   if (isEdit.value) {
-    addressStore.updateAddress(editId.value, { ...form })
+    updateAddress(editId.value, { ...form })
     ElMessage.success('更新成功')
   } else {
-    addressStore.addAddress({ ...form })
+    addAddress({ ...form })
     ElMessage.success('添加成功')
   }
   

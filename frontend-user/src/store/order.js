@@ -1,7 +1,6 @@
-import { defineStore } from 'pinia'
-import { useUserStore } from './user'
-
-export const useOrderStore = defineStore('order', {
+export default {
+  namespaced: true,
+  
   state: () => ({
     orders: []
   }),
@@ -10,47 +9,64 @@ export const useOrderStore = defineStore('order', {
     orderList: (state) => state.orders
   },
   
+  mutations: {
+    SET_ORDERS(state, orders) {
+      state.orders = orders
+    },
+    ADD_ORDER(state, order) {
+      state.orders.unshift(order)
+    },
+    UPDATE_ORDER_STATUS(state, { index, status }) {
+      state.orders[index].status = status
+    },
+    REMOVE_ORDER(state, index) {
+      state.orders.splice(index, 1)
+    },
+    CLEAR_ORDERS(state) {
+      state.orders = []
+    }
+  },
+  
   actions: {
-    getStorageKey() {
-      const userStore = useUserStore()
-      const userId = userStore.userInfo?.id || 'guest'
+    getStorageKey({ rootGetters }) {
+      const userId = rootGetters['user/userInfo']?.id || 'guest'
       return `orders_${userId}`
     },
     
-    loadOrders() {
-      const key = this.getStorageKey()
+    async loadOrders({ commit, dispatch }) {
+      const key = await dispatch('getStorageKey')
       const stored = localStorage.getItem(key)
-      this.orders = stored ? JSON.parse(stored) : []
+      commit('SET_ORDERS', stored ? JSON.parse(stored) : [])
     },
     
-    addOrder(order) {
-      this.orders.unshift(order)
-      this.saveToStorage()
+    async addOrder({ commit, dispatch }, order) {
+      commit('ADD_ORDER', order)
+      await dispatch('saveToStorage')
     },
     
-    updateOrderStatus(orderId, status) {
-      const order = this.orders.find(o => o.id === orderId)
-      if (order) {
-        order.status = status
-        this.saveToStorage()
-      }
-    },
-    
-    removeOrder(orderId) {
-      const index = this.orders.findIndex(o => o.id === orderId)
+    async updateOrderStatus({ state, commit, dispatch }, { orderId, status }) {
+      const index = state.orders.findIndex(o => o.id === orderId)
       if (index > -1) {
-        this.orders.splice(index, 1)
-        this.saveToStorage()
+        commit('UPDATE_ORDER_STATUS', { index, status })
+        await dispatch('saveToStorage')
       }
     },
     
-    saveToStorage() {
-      const key = this.getStorageKey()
-      localStorage.setItem(key, JSON.stringify(this.orders))
+    async removeOrder({ state, commit, dispatch }, orderId) {
+      const index = state.orders.findIndex(o => o.id === orderId)
+      if (index > -1) {
+        commit('REMOVE_ORDER', index)
+        await dispatch('saveToStorage')
+      }
     },
     
-    clearOrders() {
-      this.orders = []
+    async saveToStorage({ state, dispatch }) {
+      const key = await dispatch('getStorageKey')
+      localStorage.setItem(key, JSON.stringify(state.orders))
+    },
+    
+    clearOrders({ commit }) {
+      commit('CLEAR_ORDERS')
     }
   }
-})
+}

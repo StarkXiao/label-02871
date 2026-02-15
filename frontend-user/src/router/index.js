@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useUserStore } from '@/store/user'
+import store from '@/store'
 
 const routes = [
   {
@@ -94,8 +94,8 @@ router.beforeEach((to, from, next) => {
   document.title = to.meta.title ? `${to.meta.title} - FreshMall` : 'FreshMall'
   
   if (to.meta.requireAuth) {
-    const userStore = useUserStore()
-    if (!userStore.isLoggedIn) {
+    const isLoggedIn = store.getters['user/isLoggedIn']
+    if (!isLoggedIn) {
       next({ name: 'Login', query: { redirect: to.fullPath } })
       return
     }

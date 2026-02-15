@@ -1,7 +1,6 @@
-import { defineStore } from 'pinia'
-import { useUserStore } from './user'
-
-export const useAddressStore = defineStore('address', {
+export default {
+  namespaced: true,
+  
   state: () => ({
     addresses: []
   }),
@@ -12,68 +11,91 @@ export const useAddressStore = defineStore('address', {
     addressList: (state) => state.addresses
   },
   
+  mutations: {
+    SET_ADDRESSES(state, addresses) {
+      state.addresses = addresses
+    },
+    ADD_ADDRESS(state, address) {
+      state.addresses.push(address)
+    },
+    UPDATE_ADDRESS(state, { index, data }) {
+      state.addresses[index] = { ...state.addresses[index], ...data }
+    },
+    REMOVE_ADDRESS(state, index) {
+      state.addresses.splice(index, 1)
+    },
+    CLEAR_DEFAULT(state) {
+      state.addresses.forEach(a => a.isDefault = false)
+    },
+    SET_DEFAULT(state, id) {
+      state.addresses.forEach(a => {
+        a.isDefault = a.id === id
+      })
+    },
+    CLEAR_ADDRESSES(state) {
+      state.addresses = []
+    }
+  },
+  
   actions: {
     // 获取当前用户的存储 key
-    getStorageKey() {
-      const userStore = useUserStore()
-      const userId = userStore.userInfo?.id || 'guest'
+    getStorageKey({ rootGetters }) {
+      const userId = rootGetters['user/userInfo']?.id || 'guest'
       return `addresses_${userId}`
     },
     
     // 加载当前用户的地址
-    loadAddresses() {
-      const key = this.getStorageKey()
+    async loadAddresses({ commit, dispatch }) {
+      const key = await dispatch('getStorageKey')
       const stored = localStorage.getItem(key)
-      this.addresses = stored ? JSON.parse(stored) : []
+      commit('SET_ADDRESSES', stored ? JSON.parse(stored) : [])
     },
     
-    addAddress(address) {
+    async addAddress({ state, commit, dispatch }, address) {
       if (address.isDefault) {
-        this.addresses.forEach(a => a.isDefault = false)
+        commit('CLEAR_DEFAULT')
       }
       const newAddress = {
         id: Date.now(),
         ...address
       }
-      this.addresses.push(newAddress)
-      this.saveToStorage()
+      commit('ADD_ADDRESS', newAddress)
+      await dispatch('saveToStorage')
       return newAddress
     },
     
-    updateAddress(id, data) {
-      const index = this.addresses.findIndex(a => a.id === id)
+    async updateAddress({ state, commit, dispatch }, { id, data }) {
+      const index = state.addresses.findIndex(a => a.id === id)
       if (index > -1) {
         if (data.isDefault) {
-          this.addresses.forEach(a => a.isDefault = false)
+          commit('CLEAR_DEFAULT')
         }
-        this.addresses[index] = { ...this.addresses[index], ...data }
-        this.saveToStorage()
+        commit('UPDATE_ADDRESS', { index, data })
+        await dispatch('saveToStorage')
       }
     },
     
-    removeAddress(id) {
-      const index = this.addresses.findIndex(a => a.id === id)
+    async removeAddress({ state, commit, dispatch }, id) {
+      const index = state.addresses.findIndex(a => a.id === id)
       if (index > -1) {
-        this.addresses.splice(index, 1)
-        this.saveToStorage()
+        commit('REMOVE_ADDRESS', index)
+        await dispatch('saveToStorage')
       }
     },
     
-    setDefault(id) {
-      this.addresses.forEach(a => {
-        a.isDefault = a.id === id
-      })
-      this.saveToStorage()
+    async setDefault({ commit, dispatch }, id) {
+      commit('SET_DEFAULT', id)
+      await dispatch('saveToStorage')
     },
     
-    saveToStorage() {
-      const key = this.getStorageKey()
-      localStorage.setItem(key, JSON.stringify(this.addresses))
+    async saveToStorage({ state, dispatch }) {
+      const key = await dispatch('getStorageKey')
+      localStorage.setItem(key, JSON.stringify(state.addresses))
     },
     
     // 清空地址（退出登录时调用）
-    clearAddresses() {
-      this.addresses = []
+    clearAddresses({ commit }) {
+      commit('CLEAR_ADDRESSES')
     }
   }
-})
+}

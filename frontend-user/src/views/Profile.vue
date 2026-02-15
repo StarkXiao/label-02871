@@ -1,7 +1,7 @@
 <template>
   <div class="profile-page">
     <!-- 未登录 -->
-    <template v-if="!userStore.isLoggedIn">
+    <template v-if="!isLoggedIn">
       <NotLoggedIn />
     </template>
     
@@ -10,9 +10,20 @@
       <!-- 用户信息卡片 -->
       <div class="user-card">
         <div class="user-info">
+          <div class="avatar-wrapper">
+            <img 
+              v-if="userInfo?.avatar" 
+              :src="userInfo.avatar" 
+              alt="头像" 
+              class="avatar"
+            />
+            <div v-else class="avatar-placeholder">
+              <el-icon :size="30"><User /></el-icon>
+            </div>
+          </div>
           <div class="user-detail">
-            <h3 class="nickname">{{ userStore.userInfo.nickname }}</h3>
-            <p class="email">{{ userStore.userInfo.email }}</p>
+            <h3 class="nickname">{{ userInfo?.nickname || '用户' }}</h3>
+            <p class="email">{{ userInfo?.email || '' }}</p>
           </div>
         </div>
       </div>
@@ -67,11 +78,11 @@ import {
   ArrowRight, User, Wallet, Box, Finished, 
   RefreshLeft, Location 
 } from '@element-plus/icons-vue'
-import { useUserStore } from '@/store/user'
+import { useUserStore } from '@/store/helpers'
 import NotLoggedIn from '@/components/NotLoggedIn.vue'
 
 const router = useRouter()
-const userStore = useUserStore()
+const { isLoggedIn, userInfo, logout } = useUserStore()
 
 const goLogin = () => {
   router.push('/login')
@@ -92,8 +103,9 @@ const handleLogout = async () => {
       cancelButtonText: '取消',
       type: 'warning'
     })
-    userStore.logout()
+    await logout()
     ElMessage.success('已退出登录')
+    router.push('/')
   } catch {
     // 取消
   }

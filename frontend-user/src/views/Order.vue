@@ -48,7 +48,7 @@
           <div class="order-footer">
             <div class="order-total">
               共{{ order.totalQuantity }}件商品，合计：
-              <span class="total-price price">{{ order.totalAmount.toFixed(2) }}</span>
+              <span class="total-price price">{{ (order.totalAmount || 0).toFixed(2) }}</span>
             </div>
             <div class="order-actions">
               <el-button v-if="order.status === 1" size="small" @click="handleCancel(order)">取消订单</el-button>
@@ -70,14 +70,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Document } from '@element-plus/icons-vue'
-import { useCartStore } from '@/store/cart'
-import { useOrderStore } from '@/store/order'
+import { useCartStore, useOrderStore } from '@/store/helpers'
 import NavBar from '@/components/NavBar.vue'
 
 const route = useRoute()
 const router = useRouter()
-const cartStore = useCartStore()
-const orderStore = useOrderStore()
+const { addItem } = useCartStore()
+const { orderList, loadOrders, removeOrder, updateOrderStatus } = useOrderStore()
 
 const tabs = [
   { label: '全部', value: 'all' },
@@ -90,9 +89,10 @@ const tabs = [
 const activeTab = ref('all')
 
 const filteredOrders = computed(() => {
-  if (activeTab.value === 'all') return orderStore.orderList
+  const list = orderList.value || []
+  if (activeTab.value === 'all') return list
   const statusMap = { pending: 1, shipped: 2, completed: 3, refund: 4 }
-  return orderStore.orderList.filter(o => o.status === statusMap[activeTab.value])
+  return list.filter(o => o.status === statusMap[activeTab.value])
 })
 
 const getStatusText = (status) => {
@@ -123,7 +123,7 @@ const handlePay = (order) => {
     path: '/pay',
     query: {
       orderNo: order.orderNo,
-      amount: order.totalAmount.toFixed(2)
+      amount: (order.totalAmount || 0).toFixed(2)
     }
   })
 }
@@ -135,7 +135,7 @@ const handleCancel = async (order) => {
       cancelButtonText: '再想想',
       type: 'warning'
     })
-    orderStore.removeOrder(order.id)
+    removeOrder(order.id)
     ElMessage.success('订单已取消')
   } catch {}
 }
@@ -147,7 +147,7 @@ const handleRefund = async (order) => {
       cancelButtonText: '取消',
       type: 'warning'
     })
-    orderStore.updateOrderStatus(order.id, 4)
+    updateOrderStatus(order.id, 4)
     ElMessage.success('退款申请已提交')
   } catch {}
 }
@@ -158,7 +158,7 @@ const handleConfirm = async (order) => {
       confirmButtonText: '确认收货',
       cancelButtonText: '取消'
     })
-    orderStore.updateOrderStatus(order.id, 3)
+    updateOrderStatus(order.id, 3)
     ElMessage.success('已确认收货')
   } catch {}
 }
@@ -172,7 +172,7 @@ const handleRebuy = (order) => {
       })
     }
     
-    cartStore.addItem({
+    addItem({
       id: p.id,
       name: p.name,
       image: p.image,
@@ -185,7 +185,7 @@ const handleRebuy = (order) => {
 }
 
 onMounted(() => {
-  orderStore.loadOrders()
+  loadOrders()
   if (route.query.status) {
     activeTab.value = route.query.status
   }

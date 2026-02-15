@@ -57,10 +57,7 @@
       </div>
       
       <!-- 测试账号提示 -->
-      <div class="test-account">
-        <p>测试账号：user@test.com</p>
-        <p>测试密码：123456</p>
-      </div>
+     
     </div>
   </div>
 </template>
@@ -70,12 +67,12 @@ import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { ShoppingCart, Message, Lock } from '@element-plus/icons-vue'
-import { useUserStore } from '@/store/user'
+import { useUserStore } from '@/store/helpers'
 import NavBar from '@/components/NavBar.vue'
 
 const router = useRouter()
 const route = useRoute()
-const userStore = useUserStore()
+const { login } = useUserStore()
 
 const formRef = ref()
 const loading = ref(false)
@@ -101,7 +98,7 @@ const handleLogin = async () => {
   if (!valid) return
   
   loading.value = true
-  const res = await userStore.login(form.email, form.password)
+  const res = await login(form.email, form.password)
   loading.value = false
   
   if (res.code === 200) {

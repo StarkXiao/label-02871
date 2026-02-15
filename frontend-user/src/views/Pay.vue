@@ -69,12 +69,12 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { CreditCard, Wallet, Check } from '@element-plus/icons-vue'
-import { useOrderStore } from '@/store/order'
+import { useOrderStore } from '@/store/helpers'
 import NavBar from '@/components/NavBar.vue'
 
 const route = useRoute()
 const router = useRouter()
-const orderStore = useOrderStore()
+const { updateOrderStatus } = useOrderStore()
 
 const orderNo = ref('')
 const amount = ref('0.00')
@@ -120,7 +120,7 @@ const handlePay = async () => {
   
   // 更新订单状态为待收货
   if (orderId.value) {
-    orderStore.updateOrderStatus(orderId.value, 2)
+    updateOrderStatus(orderId.value, 2)
   }
   
   await ElMessageBox.alert('支付成功！感谢您的购买', '支付完成', {
