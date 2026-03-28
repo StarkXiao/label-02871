@@ -99,3 +99,23 @@ export function useOrderStore() {
     clearOrders: () => store.dispatch('order/clearOrders')
   }
 }
+
+// 收藏模块
+export function useFavoriteStore() {
+  const store = useStore()
+  
+  return {
+    // state
+    favorites: computed(() => store.state.favorite.favorites),
+    // getters
+    userFavorites: computed(() => store.getters['favorite/userFavorites']),
+    isFavorited: (productId) => store.getters['favorite/isFavorited'](productId),
+    favoriteCount: computed(() => store.getters['favorite/favoriteCount']),
+    
+    // actions
+    addFavorite: (product) => store.dispatch('favorite/addFavorite', product),
+    removeFavorite: (productId) => store.dispatch('favorite/removeFavorite', productId),
+    toggleFavorite: (product) => store.dispatch('favorite/toggleFavorite', product),
+    clearFavorites: () => store.dispatch('favorite/clearFavorites')
+  }
+}

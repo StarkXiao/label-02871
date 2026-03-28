@@ -92,6 +92,7 @@ export default {
       dispatch('address/clearAddresses', null, { root: true })
       // 清空订单
       dispatch('order/clearOrders', null, { root: true })
+      // 清空收藏（注意：这里不清空localStorage，而是在收藏模块中按用户隔离）
     }
   }
 }
