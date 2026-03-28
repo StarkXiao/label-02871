@@ -64,6 +64,13 @@
             </el-badge>
             <span>购物车</span>
           </div>
+          <div class="action-icon" @click="handleToggleFavorite">
+            <el-icon :size="20">
+              <StarFilled v-if="isProductFavorited" class="favorite-icon favorited" />
+              <Star v-else class="favorite-icon" />
+            </el-icon>
+            <span>收藏</span>
+          </div>
         </div>
         <div class="action-buttons">
           <el-button @click="addToCart">加入购物车</el-button>
@@ -83,19 +90,44 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Loading, HomeFilled, ShoppingCart, WarningFilled } from '@element-plus/icons-vue'
+import { Loading, HomeFilled, ShoppingCart, WarningFilled, Star, StarFilled } from '@element-plus/icons-vue'
 import { productApi } from '@/api'
-import { useCartStore, useUserStore } from '@/store/helpers'
+import { useCartStore, useUserStore, useFavoriteStore } from '@/store/helpers'
 import NavBar from '@/components/NavBar.vue'
 
 const route = useRoute()
 const router = useRouter()
 const { totalCount, addItem } = useCartStore()
 const { isLoggedIn } = useUserStore()
+const { toggleFavorite, isFavorited } = useFavoriteStore()
 
 const product = ref(null)
 const loading = ref(true)
 const selectedSpecs = ref({})
+
+// 计算属性：当前商品是否被收藏
+const isProductFavorited = computed(() => {
+  return product.value ? isFavorited.value(product.value.id) : false
+})
+
+// 切换收藏状态
+const handleToggleFavorite = () => {
+  if (!isLoggedIn.value) {
+    router.push('/login')
+    return
+  }
+  
+  if (product.value) {
+    const wasFavorited = isProductFavorited.value
+    toggleFavorite.value(product.value)
+    
+    if (wasFavorited) {
+      ElMessage.success('已取消收藏')
+    } else {
+      ElMessage.success('已收藏')
+    }
+  }
+}
 
 const allImages = computed(() => {
   if (!product.value) return []
@@ -329,6 +361,12 @@ const buyNow = () => {
   .el-button {
     flex: 1;
     max-width: 120px;
+  }
+}
+
+.favorite-icon {
+  &.favorited {
+    color: $primary-color;
   }
 }
 </style>

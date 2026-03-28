@@ -61,6 +61,11 @@
           <span>收货地址</span>
           <el-icon><ArrowRight /></el-icon>
         </div>
+        <div class="menu-item" @click="goFavorites">
+          <el-icon :size="20"><Star /></el-icon>
+          <span>我的收藏</span>
+          <el-icon><ArrowRight /></el-icon>
+        </div>
       </div>
       
       <!-- 退出登录 -->
@@ -76,7 +81,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { 
   ArrowRight, User, Wallet, Box, Finished, 
-  RefreshLeft, Location 
+  RefreshLeft, Location, Star 
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/helpers'
 import NotLoggedIn from '@/components/NotLoggedIn.vue'
@@ -94,6 +99,10 @@ const goOrder = (status) => {
 
 const goAddress = () => {
   router.push('/address')
+}
+
+const goFavorites = () => {
+  router.push('/favorites')
 }
 
 const handleLogout = async () => {
