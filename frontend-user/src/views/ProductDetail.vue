@@ -64,6 +64,12 @@
             </el-badge>
             <span>购物车</span>
           </div>
+          <div class="action-icon" @click="handleFavorite">
+            <el-icon :size="20" :class="{ 'is-favorite': isFavorite(product?.id) }">
+              <component :is="isFavorite(product?.id) ? StarFilled : Star" />
+            </el-icon>
+            <span>收藏</span>
+          </div>
         </div>
         <div class="action-buttons">
           <el-button @click="addToCart">加入购物车</el-button>
@@ -83,15 +89,16 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Loading, HomeFilled, ShoppingCart, WarningFilled } from '@element-plus/icons-vue'
+import { Loading, HomeFilled, ShoppingCart, WarningFilled, Star, StarFilled } from '@element-plus/icons-vue'
 import { productApi } from '@/api'
-import { useCartStore, useUserStore } from '@/store/helpers'
+import { useCartStore, useUserStore, useFavoriteStore } from '@/store/helpers'
 import NavBar from '@/components/NavBar.vue'
 
 const route = useRoute()
 const router = useRouter()
 const { totalCount, addItem } = useCartStore()
 const { isLoggedIn } = useUserStore()
+const { isFavorite, toggleFavorite, favoriteCount } = useFavoriteStore()
 
 const product = ref(null)
 const loading = ref(true)
@@ -156,6 +163,17 @@ const buyNow = () => {
       quantity: 1
     }
   })
+}
+
+const handleFavorite = () => {
+  if (!isLoggedIn.value) {
+    router.push('/login')
+    return
+  }
+  if (product.value) {
+    const isAdding = toggleFavorite(product.value)
+    ElMessage.success(isAdding ? '已添加收藏' : '已取消收藏')
+  }
 }
 </script>
 
@@ -314,9 +332,18 @@ const buyNow = () => {
   color: $text-secondary;
   cursor: pointer;
   min-width: 44px;
+  transition: color 0.2s;
   
   span {
     font-size: $font-xs;
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  .is-favorite {
+    color: $danger-color;
   }
 }
 
