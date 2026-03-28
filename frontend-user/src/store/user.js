@@ -61,9 +61,10 @@ export default {
         commit('SET_TOKEN', res.data.token)
         localStorage.setItem('user', JSON.stringify(res.data.user))
         localStorage.setItem('token', res.data.token)
-        // 加载用户地址和订单
+        // 加载用户地址、订单和收藏
         dispatch('address/loadAddresses', null, { root: true })
         dispatch('order/loadOrders', null, { root: true })
+        dispatch('favorite/loadFavorites', null, { root: true })
       }
       return res
     },
@@ -75,9 +76,10 @@ export default {
         commit('SET_TOKEN', res.data.token)
         localStorage.setItem('user', JSON.stringify(res.data.user))
         localStorage.setItem('token', res.data.token)
-        // 加载用户地址和订单
+        // 加载用户地址、订单和收藏
         dispatch('address/loadAddresses', null, { root: true })
         dispatch('order/loadOrders', null, { root: true })
+        dispatch('favorite/loadFavorites', null, { root: true })
       }
       return res
     },
@@ -92,6 +94,8 @@ export default {
       dispatch('address/clearAddresses', null, { root: true })
       // 清空订单
       dispatch('order/clearOrders', null, { root: true })
+      // 清空收藏
+      dispatch('favorite/clearAll', null, { root: true })
     }
   }
 }

@@ -19,10 +19,11 @@ app.use(store)
 app.use(router)
 app.use(ElementPlus, { size: 'default' })
 
-// 初始化：如果用户已登录，加载用户地址和订单
+// 初始化：如果用户已登录，加载用户地址、订单和收藏
 if (store.getters['user/isLoggedIn']) {
   store.dispatch('address/loadAddresses')
   store.dispatch('order/loadOrders')
+  store.dispatch('favorite/loadFavorites')
 }
 
 app.mount('#app')

@@ -79,6 +79,12 @@ const routes = [
     name: 'ProductList',
     component: () => import('@/views/ProductList.vue'),
     meta: { title: '商品列表' }
+  },
+  {
+    path: '/favorite',
+    name: 'Favorite',
+    component: () => import('@/views/Favorite.vue'),
+    meta: { title: '我的收藏', requireAuth: true }
   }
 ]
 
